@@ -1,0 +1,11 @@
+[
+    { "Name": "Stick", "Rarity": "Common", "PowerBoost": 5 },
+    { "Name": "Rasengan", "Rarity": "Common", "PowerBoost": 3 },
+    { "Name": "斬月", "Rarity": "Uncommon", "PowerBoost": 7 },
+    { "Name": "gum-gum fruit", "Rarity": "Rare", "PowerBoost": 12 },
+    { "Name": "Kamehameha", "Rarity": "Rare", "PowerBoost": 0 },
+    { "Name": "Death Note", "Rarity": "Epic", "PowerBoost": 20 },
+    { "Name": "Poop", "Rarity": "Epic", "PowerBoost": 25 },
+    { "Name": "Totem of Undying", "Rarity": "Legendary", "PowerBoost": 30 }
+  ]
+  
