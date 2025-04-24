@@ -67,6 +67,7 @@ namespace RPG_Battler.Gameplay
                 switch (input)
                 {
                     case "1":
+                        monster = new Goblin();
                         await Combat.StartBattleAsync(hero, monster, arena);
                         break;
 

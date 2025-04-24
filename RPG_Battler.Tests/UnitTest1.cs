@@ -31,10 +31,10 @@ namespace RPG_Battler.Tests
                 if ((int)loot2!.Rarity >= (int)LootRarity.Epic) unluckyEpic++;
             }
 
-            // 🪵 Debug output
+            // Debug output
             Console.WriteLine($"Lucky: {luckyEpic}, Unlucky: {unluckyEpic}");
 
-            // ✅ Use NUnit's modern syntax
+            // Use NUnit's modern syntax
             Assert.That(luckyEpic, Is.AtLeast(unluckyEpic));
 
         }
@@ -60,7 +60,7 @@ namespace RPG_Battler.Tests
 
             await Combat.StartBattleAsync(wiz, dummy, rainyNight);
 
-            // 🪵 Debug output
+            // Debug output
             Console.WriteLine($"Wizard Power after rain rule: {wiz.TotalPower}");
 
             Assert.That(wiz.TotalPower, Is.EqualTo(40));

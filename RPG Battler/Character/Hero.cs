@@ -157,7 +157,8 @@ namespace RPG_Battler.Character
             {
                 { "Lucky Sword", new List<string> { "Stick", "Stick" } },
                 { "Weekly Shonen Jump", new List<string> { "gum-gum fruit", "Death Note" } },
-                { "Toriyama Akira", new List<string> { "Kamehameha", "Totem of Undying" } }
+                { "Toriyama Akira", new List<string> { "Kamehameha", "Totem of Undying" } },
+                { "Potion", new List<string> { "Herb", "Water" } }
             };
 
             if (!recipes.ContainsKey(itemName))
@@ -190,11 +191,14 @@ namespace RPG_Battler.Character
                 case "Lucky Sword":
                     Equipment.Add(new Equipment("Lucky Sword", EquipmentSlot.RightArm, StatBoostType.Power, 10, 5));
                     break;
-                case "Mana Wand":
+                case "Weekly Shonen Jump":
                     Equipment.Add(new Equipment("Weekly Shonen Jump", EquipmentSlot.RightArm, StatBoostType.Mana, 8, 4));
                     break;
-                case "Iron Shield":
+                case "Toriyama Akira":
                     Equipment.Add(new Equipment("Toriyama Akira", EquipmentSlot.LeftArm, StatBoostType.Health, 12, 6));
+                    break;
+                case "Potion":
+                    Items.Add(new Item("Potion", "Heals 30 HP") { Quantity = 1 });
                     break;
             }
 
@@ -205,11 +209,14 @@ namespace RPG_Battler.Character
                 case "Lucky Sword":
                     Console.WriteLine("✨ The Lucky Sword glows, and feel luckyyyyyyyyyyy!");
                     break;
-                case "Mana Wand":
+                case "Weekly Shonen Jump":
                     Console.WriteLine("📚 Only 290 yen every Monday!.");
                     break;
-                case "Iron Shield":
+                case "Toriyama Akira":
                     Console.WriteLine("🤬 Are you talking about Kririn?!!!!!");
+                    break;
+                case "Potion":
+                    Console.WriteLine("💧 You crafted a Potion! It can heal you.");
                     break;
             }
 
