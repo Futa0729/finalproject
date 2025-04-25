@@ -6,20 +6,16 @@ namespace RPG_Battler.Gameplay.Rules
 
     public static class RuleCatalog
     {
-        public static List<ICombatRule> GetRules(
-            CombatEnvironment env,
-            Character.CombatClass heroClass)
+        public static List<ICombatRule> GetRules(CombatEnvironment env, Character.CombatClass heroClass)
         {
             var rules = new List<ICombatRule>();
 
             // Close-range bonus for Warriors
-            if (heroClass == Character.CombatClass.Warrior &&
-                env.TimeOfDay == "Day")
+            if (heroClass == Character.CombatClass.Warrior && env.TimeOfDay == "Day")
                 rules.Add(new CloseRangeBoostRule());
 
             // Storm spell amp for Wizards
-            if (heroClass == Character.CombatClass.Wizard &&
-                env.Weather == "Rainy")
+            if (heroClass == Character.CombatClass.Wizard && env.Weather == "Rainy")
                 rules.Add(new StormSpellAmpRule());
 
             return rules;
@@ -28,7 +24,7 @@ namespace RPG_Battler.Gameplay.Rules
 
     file class CloseRangeBoostRule : ICombatRule
     {
-        public string Description => "+20% Power (close-range daylight bonus)";
+        public string Description => "+20% Power (daylight bonus)";
         public void Apply(Character.Hero hero, Character.Monster _)
             => hero.TotalPower = (int)(hero.TotalPower * 1.2);
     }
@@ -58,7 +54,7 @@ namespace RPG_Battler.Gameplay.Rules
         if (monster.Habitat == _habitat && _weather == "Rainy" && _habitat == HabitatType.Forest)
         {
             monster.TotalPower += 5;
-            Console.WriteLine("🌲 Monster gains power from the rain-soaked forest!");
+            Console.WriteLine("🌲 Monster gains power from the rainy forest!");
         }
     }
 }

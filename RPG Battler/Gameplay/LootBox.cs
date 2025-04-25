@@ -14,7 +14,7 @@ namespace RPG_Battler.Gameplay
     public class LootBox
     {
         private static readonly Random _rng = new();
-        private static List<LootItem>? _cachedTable;
+        private static List<LootItem>? _savedTable;
 
         public static async Task<LootItem?> OpenAsync(Hero hero)
         {
@@ -22,32 +22,36 @@ namespace RPG_Battler.Gameplay
             const string TABLE_PATH =
                 "/Users/nishidafuta/final-battle-Futa0729-4/RPG Battler/Gameplay/LootTable.json";
 
-            if (_cachedTable == null)
+            if (_savedTable == null)
             {
-                _cachedTable = await LoadTableAsync(TABLE_PATH);
+                _savedTable = await LoadTableAsync(TABLE_PATH);
             }
-            var table = _cachedTable;
+            var table = _savedTable;
 
             if (table.Count == 0) return null;
 
             // weighted roll (luck affects odds)
-            int Weight(LootItem i) => i.Rarity switch
+            int Weight(LootItem item)
             {
-                LootRarity.Common    => 60,
-                LootRarity.Uncommon  => 40,
-                LootRarity.Rare      => 20,
-                LootRarity.Epic      =>  8,
-                LootRarity.Legendary =>  2,
-                _                    => 60
-            };
+                switch (item.Rarity)
+                {
+                    case LootRarity.Common: return 60;
+                    case LootRarity.Uncommon: return 40;
+                    case LootRarity.Rare: return 20;
+                    case LootRarity.Epic: return 8;
+                    case LootRarity.Legendary: return 2;
+                    default: return 60;
+                }
+            }
 
             var weighted = new List<(LootItem Item, int Weight)>();
+
             int total = 0;
 
-            foreach (var i in table)
+            foreach (var item in table)
             {
-                int weight = Weight(i) + hero.TotalLuck / 5;
-                weighted.Add((i, weight));
+                int weight = Weight(item) + hero.TotalLuck / 5;
+                weighted.Add((item, weight));
                 total += weight;
             }
 
@@ -55,7 +59,7 @@ namespace RPG_Battler.Gameplay
 
             //// find the item that corresponds to the roll adding the weights one by one
             // if the sum exceeds the roll, return that item
-            LootItem? loot = null;
+            LootItem loot = new LootItem();
             int runningTotal = 0;
 
             foreach (var pair in weighted)
@@ -73,38 +77,37 @@ namespace RPG_Battler.Gameplay
         }
 
         //// loads JSON from the absolute path(above)
-        private static async Task<List<LootItem>> LoadTableAsync(string absolutePath)
+        private static async Task<List<LootItem>> LoadTableAsync(string path)
         {
-            if (!File.Exists(absolutePath))
+            if (!File.Exists(path))
             {
-                Console.WriteLine("⚠️  Loot table not found at: " + absolutePath);
-                return new();
+                Console.WriteLine("⚠️  Loot table not found at: " + path);
+                return new List<LootItem>();
             }
 
-            await using var stream = File.OpenRead(absolutePath);
+            string json = await File.ReadAllTextAsync(path);
 
             // add a converter for enums stored as strings
-            var opts = new JsonSerializerOptions
+            var options = new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             };
-            opts.Converters.Add(new JsonStringEnumConverter());   //  ← 1 new line
+            options.Converters.Add(new JsonStringEnumConverter());   //  ← 1 new line
 
-            return (await JsonSerializer.DeserializeAsync<List<LootItem>>(stream, opts))
-                ?? new();
+            return JsonSerializer.Deserialize<List<LootItem>>(json, options)
+                    ?? new List<LootItem>();
         }
 
         // side-effects & curses
         private static void ApplyEffects(Hero hero, LootItem loot)
         {
             
-            var item = new Item(loot.Name, $"Looted ({loot.Rarity})")
-            {
-                Quantity = 1
-            };
+            Item item = new Item(loot.Name, "Looted (" + loot.Rarity + ")");
+            item.Quantity = 1;
 
             // put curse them randomly
-            if (string.IsNullOrEmpty(loot.CurseEffect) && _rng.NextDouble() < 0.1)
+            bool IfCurse = string.IsNullOrEmpty(loot.CurseEffect) && _rng.NextDouble() < 0.1;
+            if(IfCurse)
             {
                 item.IsCursed = true;
                 item.ItemName = "Cursed " + item.ItemName;
@@ -118,9 +121,9 @@ namespace RPG_Battler.Gameplay
             // Curse effect from LootItem (from JSON)
             switch (loot.CurseEffect)
             {
-                case "HalvesLuck":
+                case "MinusLuck":
                     hero.TotalLuck /= 2;
-                    Console.WriteLine($"⚠️  Curse! {hero.Name}'s luck is halved.");
+                    Console.WriteLine($"⚠️  Curse! {hero.Name}'s luck is down.");
                     break;
 
                 case "Bleed":

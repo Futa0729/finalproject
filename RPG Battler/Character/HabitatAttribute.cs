@@ -1,6 +1,6 @@
 using System;
 
-[AttributeUsage(AttributeTargets.Class, Inherited = false)]
+[AttributeUsage(AttributeTargets.Class)]
 public class HabitatAttribute : Attribute
 {
     public string Region { get; }

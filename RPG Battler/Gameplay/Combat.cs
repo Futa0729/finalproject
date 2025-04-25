@@ -47,10 +47,9 @@ namespace RPG_Battler.Gameplay
                     for (int i = 0; i < hero.Spells.Count; i++)
                         Console.WriteLine($"[{i}] {hero.Spells[i].SpellName}");
 
-                    if (int.TryParse(Console.ReadLine(), out int spellIdx) &&
-                        spellIdx >= 0 && spellIdx < hero.Spells.Count)
+                    if (int.TryParse(Console.ReadLine(), out int spellIndex) && spellIndex >= 0 && spellIndex < hero.Spells.Count)
                     {
-                        var spell = hero.Spells[spellIdx];
+                        var spell = hero.Spells[spellIndex];
                         if (hero.Mana >= spell.ManaCost)
                         {
                             Console.WriteLine($"{hero.Name} casts {spell.SpellName.ToUpper()}!");
@@ -73,21 +72,24 @@ namespace RPG_Battler.Gameplay
                     for (int i = 0; i < hero.Spells.Count; i++)
                         Console.WriteLine($"[{i}] {hero.Spells[i].SpellName}");
 
-                    var parts = Console.ReadLine()?.Split(' ');
-                    if (parts?.Length == 2 &&
-                        int.TryParse(parts[0], out int idx1) &&
-                        int.TryParse(parts[1], out int idx2))
+                    string line = Console.ReadLine();
+                    if (line != null)
+                    {
+                        string[] parts = line.Split(' ');
+
+
+                    if (parts.Length == 2 && int.TryParse(parts[0], out int index1) && int.TryParse(parts[1], out int index2))
                     {
                         try
                         {
-                            var newSpell = Spell.Combine(hero.Spells[idx1], hero.Spells[idx2]);
+                            var newSpell = Spell.Combine(hero.Spells[index1], hero.Spells[index2]);
                             if (hero.Mana >= newSpell.ManaCost)
                             {
                                 int dmg = newSpell.CalculateSpellDamage(hero.TotalPower);
                                 newSpell.CastSpell(hero);
                                 monster.TotalHealth -= dmg;
                                 hero.Mana -= newSpell.ManaCost;
-                                Console.WriteLine($"{hero.Name} casts combo {newSpell.SpellName} for {dmg} ➜ {monster.TotalHealth} HP left");
+                                Console.WriteLine($"{hero.Name} casts combo {newSpell.SpellName} with {dmg} ➜ {monster.TotalHealth} HP left");
                             }
                             else
                             {
@@ -110,9 +112,9 @@ namespace RPG_Battler.Gameplay
                     for (int i = 0; i < hero.Items.Count; i++)
                         Console.WriteLine($"[{i}] {hero.Items[i].ItemName} x{hero.Items[i].Quantity}");
 
-                    if (int.TryParse(Console.ReadLine(), out int itemIdx) && itemIdx >= 0 && itemIdx < hero.Items.Count)
+                    if (int.TryParse(Console.ReadLine(), out int itemIndex) && itemIndex >= 0 && itemIndex < hero.Items.Count)
                     {
-                        var item = hero.Items[itemIdx];
+                        var item = hero.Items[itemIndex];
 
                         if (item.ItemName == "Potion")
                         {
@@ -128,7 +130,7 @@ namespace RPG_Battler.Gameplay
                         }
 
                         item.Quantity--;
-                        if (item.Quantity <= 0) hero.Items.RemoveAt(itemIdx);
+                        if (item.Quantity <= 0) hero.Items.RemoveAt(itemIndex);
                     }
                     else
                     {
@@ -160,4 +162,5 @@ namespace RPG_Battler.Gameplay
                 : $"\n💀 {monster.Name} wins!");
         }
     }
+}
 }

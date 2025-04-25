@@ -62,7 +62,7 @@ namespace RPG_Battler.Gameplay
                 Console.WriteLine("7. Load Game");
                 Console.Write("Select an option: ");
 
-                string input = Console.ReadLine();
+                string input = Console.ReadLine() ?? "1";
 
                 switch (input)
                 {
@@ -94,14 +94,16 @@ namespace RPG_Battler.Gameplay
                         for (int i = 0; i < hero.Spells.Count; i++)
                             Console.WriteLine($"[{i}] {hero.Spells[i].SpellName}");
 
-                        var parts = Console.ReadLine()?.Split(' ');
-                        if (parts?.Length == 2 &&
-                            int.TryParse(parts[0], out int idx1) &&
-                            int.TryParse(parts[1], out int idx2))
+                        var inputLine = Console.ReadLine();
+                        if (inputLine != null)
                         {
+                            var parts = inputLine.Split(' ');
+                            if (parts.Length == 2 &&
+                                int.TryParse(parts[0], out int index1) &&
+                                int.TryParse(parts[1], out int index2))
                             try
                             {
-                                var newSpell = Spell.Combine(hero.Spells[idx1], hero.Spells[idx2]);
+                                var newSpell = Spell.Combine(hero.Spells[index1], hero.Spells[index2]);
                                 hero.Spells.Add(newSpell);
                                 Console.WriteLine($"✨ {newSpell.SpellName} was created!");
                             }

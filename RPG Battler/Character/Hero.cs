@@ -24,6 +24,8 @@ namespace RPG_Battler.Character
         public int SpellCastCount { get; set; } = 0;
         public int MonstersDefeated { get; set; } = 0;
 
+        
+
 
         public Hero()
         {       
@@ -129,7 +131,7 @@ namespace RPG_Battler.Character
 
         public bool AddItem(Item newItem)
         {
-            int currentWeight = Items.Sum(i => i.Weight * i.Quantity); // sum of all current item's weights
+            int currentWeight = Items.Sum(item => item.Weight * item.Quantity); // sum of all current item's weights
 
             if (currentWeight + (newItem.Weight * newItem.Quantity) > InventoryWeightLimit)
             {
@@ -139,7 +141,7 @@ namespace RPG_Battler.Character
 
             if (newItem.Stackable)
             {
-                var existing = Items.FirstOrDefault(i => i.ItemName == newItem.ItemName); //looking for existing item
+                var existing = Items.FirstOrDefault(item => item.ItemName == newItem.ItemName); //looking for existing item
                 if (existing != null)
                 {
                     existing.Quantity += newItem.Quantity;
@@ -169,7 +171,7 @@ namespace RPG_Battler.Character
 
 
             var needed = recipes[itemName]; // get the required items for the recipe
-            var allHave = needed.All(req => Items.Any(i => i.ItemName == req && i.Quantity >= 1)); // check if all required items are in inventory
+            var allHave = needed.All(required => Items.Any(item => item.ItemName == required && item.Quantity >= 1)); // check if all required items are in inventory
 
             if (!allHave)
             {
@@ -178,9 +180,9 @@ namespace RPG_Battler.Character
             }
 
             // remove the required items from inventory
-            foreach (var req in needed)
+            foreach (var required in needed)
             {
-                var item = Items.First(i => i.ItemName == req);
+                var item = Items.First(item => item.ItemName == required);
                 item.Quantity--;
                 if (item.Quantity <= 0) Items.Remove(item);
             }
