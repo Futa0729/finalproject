@@ -31,7 +31,11 @@ namespace RPG_Battler.Gameplay
                 Mana = 50,
                 SpellCastCount = 0,
                 MonstersDefeated = 0,
-                Items = new List<Item>(),
+                Items = new List<Item>
+                {
+                    new Item("Herb", "A healing herb") { Quantity = 2, Weight = 1 },
+                    new Item("Water", "A bottle of water") { Quantity = 1, Weight = 1 }
+                },
                 Skills = new List<Skill>(),
                 Spells = new List<Spell>
                 {
@@ -44,8 +48,14 @@ namespace RPG_Battler.Gameplay
                 }
             };
 
-            var monster = new Goblin(); 
-
+            var monsters = new List<Monster>
+            {
+                new Monster("Goblin", 1, 50, 10, HabitatType.Forest),
+                new Monster("Sand Worm", 2, 70, 15, HabitatType.Desert),
+                new Monster("雪女", 3, 100, 20, HabitatType.Ice),
+                new Monster("Skeleton", 2, 60, 12, HabitatType.Undead),
+                new Monster("両面宿儺", 5, 10000, 500, HabitatType.Cave),
+            };
 
             var arena = new CombatEnvironment("Rainy", "Night");
 
@@ -67,8 +77,12 @@ namespace RPG_Battler.Gameplay
                 switch (input)
                 {
                     case "1":
-                        monster = new Goblin();
-                        await Combat.StartBattleAsync(hero, monster, arena);
+                        var random = new Random();
+                        Monster template = monsters[random.Next(monsters.Count)];
+                        var selectedMonster = new Monster(template.Name, template.Level, template.TotalHealth, template.TotalPower, template.Habitat);
+                        hero.TotalHealth = hero.Health;   
+                        hero.Mana        = 50; 
+                        await Combat.StartBattleAsync(hero, selectedMonster, arena);
                         break;
 
                     case "2":

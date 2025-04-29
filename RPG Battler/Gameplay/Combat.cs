@@ -12,8 +12,8 @@ namespace RPG_Battler.Gameplay
     {
         public static async Task StartBattleAsync(Hero hero, Monster monster, CombatEnvironment env)
         {
-            var rules = RuleCatalog.GetRules(env, hero.CombatClass); // Get rules based on environment and hero class
-            rules.Add(new EnvironmentMonsterRule(env.Weather, monster.Habitat)); // Add environment rule for monster
+            var rules = RuleCatalog.GetRules(env, hero.CombatClass);
+            rules.Add(new EnvironmentMonsterRule(env.Weather, monster.Habitat));
             foreach (var rule in rules)
             {
                 rule.Apply(hero, monster);
@@ -47,23 +47,27 @@ namespace RPG_Battler.Gameplay
                     for (int i = 0; i < hero.Spells.Count; i++)
                         Console.WriteLine($"[{i}] {hero.Spells[i].SpellName}");
 
-                    if (int.TryParse(Console.ReadLine(), out int spellIndex) && spellIndex >= 0 && spellIndex < hero.Spells.Count)
+                    if (int.TryParse(Console.ReadLine(), out int spellIndex) &&
+                        spellIndex >= 0 && spellIndex < hero.Spells.Count)
                     {
                         var spell = hero.Spells[spellIndex];
                         if (hero.Mana >= spell.ManaCost)
                         {
                             Console.WriteLine($"{hero.Name} casts {spell.SpellName.ToUpper()}!");
-                            Console.WriteLine("BOOOOOOOOOOM!");
                             int dmg = spell.CalculateSpellDamage(hero.TotalPower);
                             spell.CastSpell(hero);
                             monster.TotalHealth -= dmg;
                             hero.Mana -= spell.ManaCost;
-                            Console.WriteLine($"{hero.Name} casts {spell.SpellName} for {dmg} ➜ {monster.TotalHealth} HP left");
+                            Console.WriteLine($"{hero.Name} deals {dmg} ➜ {monster.TotalHealth} HP left");
+                        }
+                        else
+                        {
+                            Console.WriteLine("❌ Not enough mana!");
                         }
                     }
                     else
                     {
-                        Console.WriteLine("❌ Not enough mana!");
+                        Console.WriteLine("❌ Invalid index.");
                     }
                 }
                 else if (input == "3" && hero.Spells.Count >= 2)
@@ -75,92 +79,91 @@ namespace RPG_Battler.Gameplay
                     string line = Console.ReadLine();
                     if (line != null)
                     {
-                        string[] parts = line.Split(' ');
-
-
-                    if (parts.Length == 2 && int.TryParse(parts[0], out int index1) && int.TryParse(parts[1], out int index2))
-                    {
-                        try
+                        var parts = line.Split(' ');
+                        if (parts.Length == 2 &&
+                            int.TryParse(parts[0], out int idx1) &&
+                            int.TryParse(parts[1], out int idx2))
                         {
-                            var newSpell = Spell.Combine(hero.Spells[index1], hero.Spells[index2]);
-                            if (hero.Mana >= newSpell.ManaCost)
+                            try
                             {
-                                int dmg = newSpell.CalculateSpellDamage(hero.TotalPower);
-                                newSpell.CastSpell(hero);
-                                monster.TotalHealth -= dmg;
-                                hero.Mana -= newSpell.ManaCost;
-                                Console.WriteLine($"{hero.Name} casts combo {newSpell.SpellName} with {dmg} ➜ {monster.TotalHealth} HP left");
+                                var combo = Spell.Combine(hero.Spells[idx1], hero.Spells[idx2]);
+                                if (hero.Mana >= combo.ManaCost)
+                                {
+                                    int dmg = combo.CalculateSpellDamage(hero.TotalPower);
+                                    combo.CastSpell(hero);
+                                    monster.TotalHealth -= dmg;
+                                    hero.Mana -= combo.ManaCost;
+                                    Console.WriteLine($"{hero.Name} unleashes {combo.SpellName} for {dmg} ➜ {monster.TotalHealth} HP left");
+                                }
+                                else
+                                {
+                                    Console.WriteLine("❌ Not enough mana for combo.");
+                                }
                             }
-                            else
+                            catch (InvalidComboException ex)
                             {
-                                Console.WriteLine("❌ Not enough mana for combo spell!");
+                                Console.WriteLine($"❌ {ex.Message}");
                             }
                         }
-                        catch (InvalidComboException ex)
+                        else
                         {
-                            Console.WriteLine($"❌ {ex.Message}");
+                            Console.WriteLine("❌ Invalid input.");
                         }
-                    }
-                    else
-                    {
-                        Console.WriteLine("❌ Invalid input. Skipping turn.");
                     }
                 }
                 else if (input == "4" && hero.Items.Count > 0)
                 {
-                    Console.WriteLine("Select an item to use:");
+                    Console.WriteLine("Select an item:");
                     for (int i = 0; i < hero.Items.Count; i++)
                         Console.WriteLine($"[{i}] {hero.Items[i].ItemName} x{hero.Items[i].Quantity}");
 
-                    if (int.TryParse(Console.ReadLine(), out int itemIndex) && itemIndex >= 0 && itemIndex < hero.Items.Count)
+                    if (int.TryParse(Console.ReadLine(), out int itemIdx) &&
+                        itemIdx >= 0 && itemIdx < hero.Items.Count)
                     {
-                        var item = hero.Items[itemIndex];
+                        var item = hero.Items[itemIdx];
 
                         if (item.ItemName == "Potion")
                         {
                             hero.TotalHealth += 30;
-                            Console.WriteLine($"🧪 {hero.Name} drinks a potion. It tastes kinda weird..");
-                            Console.WriteLine($"+30 HP ➜ {hero.TotalHealth} HP");
+                            Console.WriteLine($"🧪 +30 HP ➜ {hero.TotalHealth}");
                         }
                         if (item.IsCursed)
                         {
-                            Console.WriteLine($"💀 {hero.Name} uses {item.ItemName}... and instantly regrets it.");
                             hero.TotalHealth -= 10;
-                            Console.WriteLine($"💥 BAM! {item.CurseEffectDescription}");
+                            Console.WriteLine($"💀 Curse! {item.CurseEffectDescription}");
                         }
 
                         item.Quantity--;
-                        if (item.Quantity <= 0) hero.Items.RemoveAt(itemIndex);
+                        if (item.Quantity <= 0) hero.Items.RemoveAt(itemIdx);
                     }
                     else
                     {
                         Console.WriteLine("❌ Invalid selection.");
                     }
                 }
-
                 else
                 {
-                    Console.WriteLine("Invalid action. Skipping turn.");
+                    Console.WriteLine("Invalid action.");
                 }
 
-                if (monster.TotalHealth <= 0)
-                {
-                    hero.MonstersDefeated++;
-                    if (hero.MonstersDefeated >= 5)
-                        Console.WriteLine("🏆 Quest Complete: Defeated 5 monsters!");
-                    break;
-                }
+                if (monster.TotalHealth <= 0) break;
 
+                // Monster counter-attack
                 hero.TotalHealth -= monster.TotalPower;
-                Console.WriteLine($"{monster.Name} attacks for {monster.TotalPower} ➜ {hero.TotalHealth} HP left");
+                Console.WriteLine($"{monster.Name} hits for {monster.TotalPower} ➜ {hero.TotalHealth} HP left");
 
                 await Task.Delay(300);
             }
 
-            Console.WriteLine(hero.TotalHealth > 0
-                ? $"\n🎉 {hero.Name} wins!"
-                : $"\n💀 {monster.Name} wins!");
+            bool heroWon = hero.TotalHealth > 0;
+            Console.WriteLine(heroWon ? $"\n🎉 {hero.Name} wins!" : $"\n💀 {monster.Name} wins!");
+
+            if (heroWon)
+            {
+                var loot = await LootBox.OpenAsync(hero);
+                if (loot != null)
+                    Console.WriteLine($"🎁 {hero.Name} found: {loot.Name} ({loot.Rarity})");
+            }
         }
     }
-}
 }
